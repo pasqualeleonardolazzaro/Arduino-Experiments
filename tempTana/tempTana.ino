@@ -33,14 +33,24 @@ void setup() {
   }
 }
 
+// Heart
+byte fullHeart[8] = {
+  B00000,
+  B01010,
+  B11111,
+  B11111,
+  B01110,
+  B00100,
+  B00000
+};
 void loop() {
   float meanTemperature = 0.0;
-  for(int i = 0 ; i < 5 ; i++){
+  for(int i = 0 ; i < 100 ; i++){
   row_temperature = analogRead(analog_temperature);
   celsius = ((row_temperature/1023.0*3.3*1000) -500 )/10 ;
   meanTemperature += celsius;
   }
-  meanTemperature = meanTemperature/5.0;
+  meanTemperature = meanTemperature/100.0;
   Serial.print(meanTemperature);
   Serial.println(" C.");
   //se la tempeatura è inferiore a 19 gradi accendi il led rosso
@@ -51,8 +61,11 @@ void loop() {
     digitalWrite(redLed_pin, LOW);
   }
 // Costruisci la stringa da visualizzare sul display
-  String displayString = "Temperatura: " + String(meanTemperature) + (char)223 + "C";
+  String displayString = "Temperatura: " + String(meanTemperature, 1) + (char)223 + "C";
   String welcomeString = "Benvenuti nella tana";
+
+  //initialize heart character
+  lcd.createChar(1, fullHeart);
   // Controlla se la lunghezza della stringa supera la larghezza del display
   if (displayString.length() > 16) {
     // Scorri la stringa sul display
@@ -60,6 +73,12 @@ void loop() {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print(welcomeString.substring(i, i + 16));
+      if(welcomeString.substring(i, i + 16).length() < 16) {
+      //initialize heart character
+        lcd.createChar(1, fullHeart);
+        lcd.setCursor(welcomeString.substring(i, i + 16).length(), 0);
+        lcd.write(byte(1));
+      }
       lcd.setCursor(0, 1);
       lcd.print(displayString.substring(i, i + 16));
       delay(700); // Puoi regolare la velocità dello scrolling modificando questo valore
